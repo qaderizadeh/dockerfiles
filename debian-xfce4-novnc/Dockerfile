@@ -22,7 +22,7 @@ CMD rm -f /tmp/.X1-lock /tmp/.X11-unix/X1 ; USER=debian vncserver -kill :1 ; USE
 # 2. RUN:     docker run -d -p 5901:5901 -p 6080:6080 --name debian-desktop debian-xfce4-novnc
 # 3. SECURE:  The default password is INSECURE. You MUST change it immediately.
 #    a. Exec into container:  docker exec -it debian-desktop /bin/bash
-#    b. Remove old passwd:   rm /home/debian/.vnc/passwd
+#    b. Remove old passwd:   rm -f /home/debian/.vnc/passwd
 #    c. Set new password:    vncpasswd
 #    d. Exit terminal:       exit
 #    e. Restart container:   docker restart debian-desktop
