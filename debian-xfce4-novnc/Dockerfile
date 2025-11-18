@@ -1,19 +1,44 @@
 FROM debian
+
+# Update and install required packages
 RUN apt update -y
-RUN DEBIAN_FRONTEND=noninteractive apt install -y bash git xfce4 xfce4-terminal dbus-x11 python3 tightvncserver sudo
+RUN DEBIAN_FRONTEND=noninteractive apt install -y \
+    bash \
+    git \
+    xfce4 \
+    xfce4-terminal \
+    dbus-x11 \
+    python3 \
+    tightvncserver \
+    sudo
+
+# Clone noVNC and websockify repositories
 RUN git clone https://github.com/novnc/noVNC.git /opt/noVNC
 RUN git clone https://github.com/novnc/websockify.git /opt/noVNC/utils/websockify
+
+# Create user 'debian' and setup password + sudo
 RUN useradd -ms /bin/bash debian
 RUN echo "debian:debian" | chpasswd
 RUN adduser debian sudo
+
+# Switch to debian user
 USER debian
 WORKDIR /home/debian
+
+# VNC password setup
 RUN mkdir ~/.vnc
 RUN echo -ne '\xb3\x82\xfe\x6f\xf8\xac\xd1\xa9' > ~/.vnc/passwd
 RUN chmod 400 ~/.vnc/passwd
+
+# VNC xstartup configuration
 RUN printf '#!/bin/bash\nstartxfce4 &' > ~/.vnc/xstartup
 RUN chmod +x ~/.vnc/xstartup
-CMD rm -f /tmp/.X1-lock /tmp/.X11-unix/X1 ; USER=debian vncserver -kill :1 ; USER=debian vncserver :1 && /opt/noVNC/utils/novnc_proxy --vnc localhost:5901
+
+# Start VNC server and noVNC proxy
+CMD rm -f /tmp/.X1-lock /tmp/.X11-unix/X1 ; \
+    USER=debian vncserver -kill :1 ; \
+    USER=debian vncserver :1 && \
+    /opt/noVNC/utils/novnc_proxy --vnc localhost:5901
 
 # --------------------------------------------------------------------------------------------------
 # CRITICAL POST-RUN INSTRUCTIONS FOR SECURITY AND STABILITY:
